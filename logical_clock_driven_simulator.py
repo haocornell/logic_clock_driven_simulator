@@ -2,6 +2,8 @@ from __future__ import annotations
 import os
 import json
 
+from datetime import datetime, timezone
+
 import heapq
 from itertools import count
 
@@ -87,9 +89,15 @@ class IncidentState:
     dc_impact_state: str = ''
     dc_impact_known: bool = False
     start_recovery: bool = False
+    start_time : datetime = None 
 
-    def add_msg(self, ts: str, who: str, msg: str) -> None:
-        update = f"{ts} <{who}> {msg}"
+    def add_msg(self, ts: int, who: str, msg: str) -> None:
+        from datetime import timedelta
+
+        post_time = self.start_time + timedelta(minutes=ts)
+        post_time = post_time.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+        update = f"{post_time} <{who}> {msg}\n"
         self.conversation_history += update
         print(update)
 
@@ -336,6 +344,7 @@ ddim = DirectDriveSRE('zhenfeng', 'DDIM')
 
 istate = IncidentState(
         id="INC-1042",
+        start_time = datetime.fromisoformat("2025-12-05T04:24:08.770000Z".replace("Z", "+00:00"))
     )
 responders: List[BaseSRE] = [ aim, dcim ]
 
