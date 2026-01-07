@@ -191,11 +191,12 @@ class DirectDriveSRE(BaseSRE):
     }]
 
         self.clusters = {'DD-1':'UP', 'DD-2':'UP', 'DD-3': 'UP', 'DD-7': 'UP', 'DD-8':'UP'}
+
     def one_step(self, istate: IncidentState, event: dict[str, Any]) -> None:
         if event['tag'] == 'CLOCK_EVENT':
     
             # check whether we need to update the istate. If there is a change, create a global event
-            context = f"""Given the conversation history and my knowledge, indicates what action in terms of function calls should be taken. 
+            context = f"""You represent directive drive incident manager, DDIM. Given the conversation history and my knowledge, indicates what action in terms of function calls should be taken. 
 
                           bridge conversation history:
                           {istate.conversation_history}
@@ -205,7 +206,7 @@ class DirectDriveSRE(BaseSRE):
 
                           clusters state: {self.clusters}
 
-                          Be aware of cluster states. If a cluster is down already, there is no need to shut it down again or a cluster is up, then RESTART is not needed. If there are no updates on DC situations, then no need to keep asking questions.
+                          Be aware of cluster states. If a cluster is down already, there is no need to shut it down again or a cluster is up, then RESTART is not needed. If there are no updates on DC situations and you, DDIM, already asked for updates recently, then no need to keep asking questions.
                             
             """
             func = generate_action(context, self.functions)
